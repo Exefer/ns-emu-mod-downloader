@@ -41,8 +41,6 @@ impl Deref for ModDownloadDataset {
     }
 }
 
-pub(crate) const ARCHIVE_EXTENSIONS: &[&str] = &[".zip", ".rar", ".7z"];
-
 pub(crate) static EMU_NAME: OnceLock<String> = OnceLock::new();
 
 fn get_input(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
