@@ -112,7 +112,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     EMU_NAME.set(get_emu()?.to_string())?;
 
     display_options(
-        "\nSelect a source to download mods from",
+        "\nSelect a repository to download mods from",
         &["TheBoy181", "Yuzu Mod Archive"],
     );
     let input = get_input("\nEnter your choice [1-2]: ")?;
