@@ -135,7 +135,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for (index, game) in games.iter().enumerate() {
         println!(
             "  {}) {}: {} mods",
-            index,
+            index + 1,
             game.title_name,
             game.mod_download_urls.len()
         );
