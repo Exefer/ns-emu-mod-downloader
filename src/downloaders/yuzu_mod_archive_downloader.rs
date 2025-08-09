@@ -1,7 +1,7 @@
 /// TODO: Urgent: Refactor
 use super::downloader_ext::TitleVersionExt;
 use crate::{
-    ARCHIVE_EXTENSIONS, ModDownloadDataset,
+    ModDownloadDataset,
     curl_helper::BodyExt,
     entities::{
         game::Game,
@@ -20,7 +20,8 @@ pub struct YuzuModArchiveDownloader {
 }
 
 static YUZU_MOD_ARCHIVE_FILE: &'static str = include_str!("../../resources/yuzu-mod-archive.xml");
-const REPOSITORY: &'static str = "eden-emulator/yuzu-mod-archive";
+
+const REPOSITORY: &'static str = "Bellerof/yuzu-mod-archive";
 
 // TODO: Urgent: DRY
 
@@ -61,7 +62,7 @@ impl YuzuModArchiveDownloader {
             .iter()
             .filter(|entry| {
                 let path = &entry.path;
-                let is_archive = ARCHIVE_EXTENSIONS.iter().any(|ext| path.ends_with(ext));
+                let is_archive = path.ends_with(".7z");
                 let prefix_matches = path.starts_with(&mod_url_path);
                 is_archive && prefix_matches
             })

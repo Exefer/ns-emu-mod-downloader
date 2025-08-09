@@ -1,7 +1,7 @@
 /// TODO: Urgent: Refactor
 use super::downloader_ext::TitleVersionExt;
 use crate::{
-    ARCHIVE_EXTENSIONS, ModDownloadDataset,
+    ModDownloadDataset,
     curl_helper::BodyExt,
     entities::{
         game::Game,
@@ -20,7 +20,8 @@ pub struct TheBoy181Downloader {
 }
 
 static THEBOY181_FILE: &'static str = include_str!("../../resources/theboy181.xml");
-const REPOSITORY: &'static str = "theboy181/switch-ptchtxt-mods";
+
+const REPOSITORY: &'static str = "Bellerof/switch-ptchtxt-mods";
 
 // TODO: Urgent: DRY
 
@@ -39,7 +40,7 @@ impl TheBoy181Downloader {
         self.client.get(true)?;
         self.client.useragent(env!("CARGO_PKG_NAME")).unwrap();
         self.client.url(&format!(
-            "https://api.github.com/repos/{REPOSITORY}/git/trees/main?recursive=1"
+            "https://api.github.com/repos/{REPOSITORY}/git/trees/master?recursive=1"
         ))?;
 
         Ok(self
@@ -54,24 +55,18 @@ impl TheBoy181Downloader {
         mod_url_path: &str,
         title_version: &str,
     ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-        let version_prefixes = [
-            format!("{}/{}", mod_url_path, title_version),
-            format!("{}/v{}", mod_url_path, title_version),
-        ];
-
         let download_urls: Vec<String> = tree
             .iter()
             .filter(|entry| {
                 let path = &entry.path;
-                let is_archive = ARCHIVE_EXTENSIONS.iter().any(|ext| path.ends_with(ext));
-                let prefix_matches = version_prefixes
-                    .iter()
-                    .any(|prefix| path.starts_with(prefix));
+                let is_archive = path.ends_with(".7z");
+                let prefix_matches =
+                    path.starts_with(&format!("{}/{}", mod_url_path, title_version));
                 is_archive && prefix_matches
             })
             .map(|entry| {
                 format!(
-                    "https://raw.githubusercontent.com/{REPOSITORY}/refs/heads/main/{}",
+                    "https://raw.githubusercontent.com/{REPOSITORY}/refs/heads/master/{}",
                     entry.path
                 )
             })
