@@ -54,9 +54,9 @@ fn get_input(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
 }
 
 fn display_options<T: std::fmt::Display>(title: &str, items: &[T]) {
-    println!("\n{}:", title);
-    for (i, item) in items.iter().enumerate() {
-        println!("  {}) {}", i + 1, item);
+    println!("{}:", title);
+    for (index, item) in items.iter().enumerate() {
+        println!("  {}) {}", index + 1, item);
     }
 }
 
@@ -74,7 +74,7 @@ fn get_emu() -> Result<String, Box<dyn std::error::Error>> {
         .map(|slice| String::from_utf8(slice.to_vec()).unwrap())
         .collect();
 
-    display_options("Select an emulator to download mods for", &emus);
+    display_options("\nSelect an emulator to download mods for", &emus);
     let input = get_input(&format!("\nEnter your choice [1-{}]: ", emus.len()))?;
 
     let choice = input.parse::<usize>().unwrap_or(0);
@@ -112,7 +112,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     EMU_NAME.set(get_emu()?.to_string())?;
 
     display_options(
-        "Select a source to download mods from",
+        "\nSelect a source to download mods from",
         &["TheBoy181", "Yuzu Mod Archive"],
     );
     let input = get_input("\nEnter your choice [1-2]: ")?;
