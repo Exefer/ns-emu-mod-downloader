@@ -131,6 +131,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let games = downloader.read_game_titles()?;
 
+    if games.is_empty() {
+        return Err("No mod installation folders found on this system.".into());
+    }
+
+    let games: Vec<_> = games
+        .into_iter()
+        .filter(|game| !game.mod_download_urls.is_empty())
+        .collect();
+
+    if games.is_empty() {
+        println!("No mods available for any installed game.");
+        return Ok(());
+    }
+
     println!("\nFound mods for the following games:");
     for (index, game) in games.iter().enumerate() {
         println!(
