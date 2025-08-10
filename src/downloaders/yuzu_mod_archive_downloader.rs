@@ -19,9 +19,9 @@ pub struct YuzuModArchiveDownloader {
     client: Easy,
 }
 
-static YUZU_MOD_ARCHIVE_FILE: &'static str = include_str!("../../resources/yuzu-mod-archive.xml");
+static YUZU_MOD_ARCHIVE_FILE: &str = include_str!("../../resources/yuzu-mod-archive.xml");
 
-const REPOSITORY: &'static str = "Bellerof/yuzu-mod-archive";
+const REPOSITORY: &str = "Bellerof/yuzu-mod-archive";
 
 // TODO: Urgent: DRY
 
@@ -63,7 +63,7 @@ impl YuzuModArchiveDownloader {
             .filter(|entry| {
                 let path = &entry.path;
                 let is_archive = path.ends_with(".7z");
-                let prefix_matches = path.starts_with(&mod_url_path);
+                let prefix_matches = path.starts_with(mod_url_path);
                 is_archive && prefix_matches
             })
             .map(|entry| {

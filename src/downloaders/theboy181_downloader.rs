@@ -19,9 +19,9 @@ pub struct TheBoy181Downloader {
     client: Easy,
 }
 
-static THEBOY181_FILE: &'static str = include_str!("../../resources/theboy181.xml");
+static THEBOY181_FILE: &str = include_str!("../../resources/theboy181.xml");
 
-const REPOSITORY: &'static str = "Bellerof/switch-ptchtxt-mods";
+const REPOSITORY: &str = "Bellerof/switch-ptchtxt-mods";
 
 // TODO: Urgent: DRY
 
