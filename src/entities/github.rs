@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -105,4 +105,23 @@ pub struct Reactions {
     pub heart: i64,
     pub rocket: i64,
     pub eyes: i64,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct GitTree {
+    pub sha: String,
+    pub url: String,
+    pub tree: Vec<GitTreeEntry>,
+    pub truncated: bool,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct GitTreeEntry {
+    pub path: String,
+    pub mode: String,
+    #[serde(rename = "type")]
+    pub type_field: String,
+    pub sha: String,
+    pub url: String,
+    pub size: Option<i64>,
 }

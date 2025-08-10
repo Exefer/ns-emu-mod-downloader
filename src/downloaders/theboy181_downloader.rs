@@ -5,7 +5,7 @@ use crate::{
     curl_helper::BodyExt,
     entities::{
         game::Game,
-        tree::{RepositoryTree, TreeEntry},
+        github::{GitTree, GitTreeEntry},
     },
 };
 use curl::easy::Easy;
@@ -36,22 +36,19 @@ impl TheBoy181Downloader {
         mod_url_path.split("/").next().unwrap_or_default().into()
     }
 
-    fn get_repo_tree(&mut self) -> Result<RepositoryTree, Box<dyn std::error::Error>> {
+    fn get_repo_tree(&mut self) -> Result<GitTree, Box<dyn std::error::Error>> {
         self.client.get(true)?;
         self.client.useragent(env!("CARGO_PKG_NAME")).unwrap();
         self.client.url(&format!(
             "https://api.github.com/repos/{REPOSITORY}/git/trees/master?recursive=1"
         ))?;
 
-        Ok(self
-            .client
-            .without_body()
-            .send_with_response::<RepositoryTree>()?)
+        Ok(self.client.without_body().send_with_response::<GitTree>()?)
     }
 
     fn get_mod_download_urls(
         &self,
-        tree: &Vec<TreeEntry>,
+        tree: &Vec<GitTreeEntry>,
         mod_url_path: &str,
         title_version: &str,
     ) -> Result<Vec<String>, Box<dyn std::error::Error>> {
