@@ -95,9 +95,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let input = get_input(&format!("\nEnter your choice [1-{}]: ", repos.keys().len()))?;
 
-    let repo = repos
-        .get(input.as_str())
-        .ok_or_else(|| format!("Invalid option '{}'. Please choose 1 to 4.", input))?;
+    let repo = repos.get(input.as_str()).ok_or_else(|| {
+        format!(
+            "Invalid option '{}'. Please choose 1 to {}.",
+            input,
+            repos.keys().len()
+        )
+    })?;
 
     let mut downloader: ModDownloader = ModDownloader::new(repo.to_string());
 
