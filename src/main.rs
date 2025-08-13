@@ -1,46 +1,15 @@
-mod archive;
 mod curl_helper;
-mod downloaders;
 mod entities;
+mod mod_downloader;
 mod utils;
-
-use crate::downloaders::{
-    mod_downloader::ModDownloader, theboy181_downloader::TheBoy181Downloader,
-    yuzu_mod_archive_downloader::YuzuModArchiveDownloader,
-};
-use serde::{Deserialize, Serialize};
+use mod_downloader::ModDownloader;
 use std::{
+    collections::{HashMap, HashSet},
     io::{self, Write},
-    ops::Deref,
     sync::OnceLock,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct GameTitle {
-    title_name: String,
-    title_id: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct GameDataset(Vec<GameTitle>);
-
-#[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct ModDownload {
-    title_id: String,
-    mod_url_path: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct ModDownloadDataset(Vec<ModDownload>);
-
-impl Deref for ModDownloadDataset {
-    type Target = Vec<ModDownload>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
+// TODO: Create a config struct
 pub(crate) static EMU_NAME: OnceLock<String> = OnceLock::new();
 
 fn get_input(prompt: &str) -> Result<String, Box<dyn std::error::Error>> {
@@ -98,7 +67,7 @@ fn get_emu() -> Result<String, Box<dyn std::error::Error>> {
             emu_config_dir.display()
         );
 
-        return Err(format!("Emulator '{}' is not installed on the system.", emu,).into());
+        return Err(format!("Emulator '{}' is not installed on this system.", emu,).into());
     }
 
     Ok(emu.into())
@@ -107,25 +76,30 @@ fn get_emu() -> Result<String, Box<dyn std::error::Error>> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Mod Downloader ===");
 
-    EMU_NAME.set(get_emu()?.to_string())?;
+    let emu = get_emu()?;
+
+    EMU_NAME.set(emu).unwrap();
+
+    let repos: HashMap<&str, &str> = [
+        ("1", "Bellerof/switch-pchtxt-mods"),
+        ("2", "Bellerof/Switch-Ultrawide-Mods"),
+        ("3", "Bellerof/ue4-emuswitch-60fps"),
+        ("4", "Bellerof/switch-port-mods"),
+    ]
+    .into();
 
     display_options(
         "\nSelect a repository to download mods from",
-        &["TheBoy181", "Yuzu Mod Archive"],
+        &repos.values().collect::<Vec<_>>(),
     );
-    let input = get_input("\nEnter your choice [1-2]: ")?;
 
-    let mut downloader: Box<dyn ModDownloader> = match input.as_str() {
-        "1" => Box::new(TheBoy181Downloader::new()),
-        "2" => Box::new(YuzuModArchiveDownloader::new()),
-        _ => {
-            return Err(format!(
-                "\nInvalid option '{}'. Please choose a value from 1 to 2.",
-                input
-            )
-            .into());
-        }
-    };
+    let input = get_input(&format!("\nEnter your choice [1-{}]: ", repos.keys().len()))?;
+
+    let repo = repos
+        .get(input.as_str())
+        .ok_or_else(|| format!("Invalid option '{}'. Please choose 1 to 4.", input))?;
+
+    let mut downloader: ModDownloader = ModDownloader::new(repo.to_string());
 
     let games = downloader.read_game_titles()?;
 
@@ -135,7 +109,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let games: Vec<_> = games
         .into_iter()
-        .filter(|game| !game.mod_download_urls.is_empty())
+        .filter(|game| !game.mod_download_entries.is_empty())
         .collect();
 
     if games.is_empty() {
@@ -145,12 +119,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\nFound mods for the following games:");
     for (index, game) in games.iter().enumerate() {
-        println!(
-            "  {}) {}: {} mods",
-            index + 1,
-            game.title_name,
-            game.mod_download_urls.len()
-        );
+        let mods = game
+            .mod_download_entries
+            .iter()
+            .filter_map(|entry| {
+                entry
+                    .mod_relative_path
+                    .split_once("/")
+                    .map(|(first, _)| first)
+            })
+            .collect::<HashSet<&str>>();
+        println!("  {}) {}: {} mods", index + 1, game.title_name, mods.len());
     }
 
     let proceed = get_input("\nDo you want to proceed to the download [Y/n]: ")?;

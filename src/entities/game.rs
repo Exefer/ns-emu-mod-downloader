@@ -1,11 +1,16 @@
-use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug)]
 pub struct Game {
     pub title_id: String,
     pub title_name: String,
-    pub title_version: String,
+    pub title_version: Option<String>,
     pub mod_data_location: PathBuf,
-    pub mod_download_urls: Vec<String>,
+    pub mod_download_entries: Vec<ModDownloadEntry>,
+}
+
+#[derive(Default, Debug)]
+pub struct ModDownloadEntry {
+    pub download_url: String,
+    pub mod_relative_path: String,
 }

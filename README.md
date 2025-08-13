@@ -2,19 +2,21 @@
 
 A simple command-line tool for downloading mods for Switch emulators.
 
-Currently, Ryujinx and derivatives are not supported.
+Ryujinx and derivatives are not supported.
 
-I'm still learning Rust, so expect improvements over time.
+I'm still learning Rust, so expect code improvements over time.
 
-## Sources
+## Troubleshooting
 
-Mods are downloaded from:
-
-* [Yuzu Mod Archive](https://github.com/eden-emulator/yuzu-mod-archive)
-* [switch-ptchtxt-mods](https://github.com/theboy181/switch-ptchtxt-mods)
-
-Thanks to these projects for making such helpful repositories!
+If you are having trouble downloading mods for a specific game version you have installed, and you are certain that mods for that version are available, try toggling the "Scan Subfolders" option on and off in your game directories on your emulator, then re-run the tool.
 
 ## Credits
 
-Thanks to [amakvana](https://github.com/amakvana/) for creating [SwitchEmuModDownloader](https://github.com/amakvana/SwitchEmuModDownloader). Its codebase helped me understand how everything could be put together.
+Mods are downloaded from:
+
+- [StevensND/switch-port-mods](https://github.com/StevensND/switch-port-mods)
+- [StevensND/ue4-emuswitch-60fps](https://github.com/StevensND/ue4-emuswitch-60fps)
+- [Kenji-NX/switch-pchtxt-mods](https://github.com/Kenji-NX/switch-pchtxt-mods)
+- [Fl4sh9174/Switch-Ultrawide-Mods](https://github.com/Fl4sh9174/Switch-Ultrawide-Mods)
+
+Thanks to these projects and their creators for making such amazing repositories!
