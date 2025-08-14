@@ -6,6 +6,7 @@ use crate::{
     utils::read_lines,
 };
 use curl::easy::Easy;
+use rayon::prelude::*;
 use std::fs::{File, create_dir_all};
 use std::io::Write;
 use std::path::PathBuf;
@@ -110,29 +111,40 @@ impl ModDownloader {
         Ok(games)
     }
 
-    pub fn download_mods(&mut self, games: &Vec<Game>) -> Result<(), Box<dyn std::error::Error>> {
-        for game in games {
-            for entry in game.mod_download_entries.iter() {
-                let downloaded_file_path = game.mod_data_location.join(&entry.mod_relative_path);
+    pub fn download_mods(
+        &self,
+        games: &Vec<Game>,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let download_jobs: Vec<(&str, PathBuf)> = games
+            .iter()
+            .flat_map(|game| {
+                game.mod_download_entries.iter().map(move |entry| {
+                    let downloaded_file_path =
+                        game.mod_data_location.join(&entry.mod_relative_path);
+                    (entry.download_url.as_ref(), downloaded_file_path)
+                })
+            })
+            .collect();
 
-                create_dir_all(downloaded_file_path.parent().unwrap())?;
+        download_jobs.par_iter().try_for_each(|(url, path)| {
+            create_dir_all(path.parent().unwrap())?;
+            let mut file = File::create(path)?;
 
-                let mut file = File::create(&downloaded_file_path)?;
+            let mut easy = Easy::new();
+            easy.get(true)?;
+            easy.url(&url.replace(" ", "%20"))?;
 
-                self.client.get(true)?;
-                self.client.url(&entry.download_url.replace(" ", "%20"))?;
+            let mut transfer = easy.transfer();
+            transfer.write_function(|data| {
+                file.write_all(data)
+                    .expect("Failed to write to file during download");
+                Ok(data.len())
+            })?;
+            transfer.perform()?;
 
-                let mut transfer = self.client.transfer();
+            Ok::<(), Box<dyn std::error::Error + Send + Sync>>(())
+        })?;
 
-                transfer.write_function(|data| {
-                    file.write_all(data)
-                        .expect("Failed to write to file during download");
-                    Ok(data.len())
-                })?;
-
-                transfer.perform()?;
-            }
-        }
         Ok(())
     }
 

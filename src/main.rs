@@ -139,7 +139,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let proceed = get_input("\nDo you want to proceed to the download [Y/n]: ")?;
     match proceed.as_str() {
         "Y" => {
-            downloader.download_mods(&games)?;
+            downloader
+                .download_mods(&games)
+                .map_err(|e| -> Box<dyn std::error::Error> { e })?;
             println!("Operation successfull.");
         }
         _ => println!("Operation canceled."),
