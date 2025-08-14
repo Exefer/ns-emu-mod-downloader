@@ -108,7 +108,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let games = downloader.read_game_titles()?;
 
     if games.is_empty() {
-        return Err("No mod installation folders found on this system.".into());
+        println!("No mod installation folders found on this system.");
+        return Ok(());
     }
 
     let games: Vec<_> = games
